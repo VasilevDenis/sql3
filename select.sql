@@ -32,14 +32,13 @@ JOIN albums_artists ON albums.id = albums_artists.album_id
 JOIN artists ON albums_artists.artist_id = artists.id
 WHERE artists.title = 'The Beatles';
 
-SELECT DISTINCT albums.title AS album
-FROM albums
-JOIN albums_artists ON albums.id = albums_artists.album_id
-JOIN artists ON albums_artists.artist_id = artists.id
-JOIN genres_artists ON artists.id = genres_artists.artist_id
-JOIN genres ON genres_artists.genre_id = genres.id
-GROUP BY album
-HAVING COUNT(DISTINCT genres.id) > 1;
+SELECT DISTINCT albums.title /* Получаем ТОЛЬКО уникальные имена альбомов. Другие данные в выводе не нужны */
+FROM albums /* Из таблицы альбомов */
+JOIN albums_artists ON albums.id = albums_artists.album_id  /* Объединяем альбомы с промежуточной таблицей между исполнителями */
+JOIN artists ON albums_artists.artist_id = artists.id /* Объединяем промежуточную таблицу с исполнителями */
+JOIN genres_artists ON artists.id = genres_artists.artist_id /* Объединяем исполнителей с промежуточной таблицей между жанрами */
+GROUP BY albums.title, artists.id  /* Группируем по именам альбомов и айди исполнителей из промежуточной таблицы между жанрами и исполнителями */
+HAVING COUNT(genres_artists.genre_id) > 1; /* Где количество id жанров из промежуточной таблицы больше 1 */
 
 SELECT tracks.title AS track
 FROM tracks
