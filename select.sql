@@ -14,11 +14,14 @@ FROM albums
 JOIN tracks ON albums.id = tracks.album_id
 GROUP BY album;
 
-SELECT artists.title AS artist
-FROM artists
-LEFT JOIN albums_artists ON artists.id = albums_artists.artist_id
-LEFT JOIN albums ON albums_artists.album_id = albums.id
-WHERE albums.release_year != 2020 OR albums.id IS NULL;
+SELECT title
+FROM artists /* Из таблицы исполнителей */
+WHERE title NOT IN ( /* Где имя исполнителя не входит в вложенную выборку */
+    SELECT artists.title /* Получаем имена исполнителей */
+    FROM artists /* Из таблицы исполнителей */
+    JOIN  albums_artists ON artists.id = albums_artists.artist_id  /* Объединяем с промежуточной таблицей */
+    JOIN  albums ON  albums_artists.album_id = albums.id/* Объединяем с таблицей альбомов */
+    WHERE release_year = 2020 /* Где год альбома равен 2020 */);
 
 SELECT collections.title AS collection
 FROM collections
