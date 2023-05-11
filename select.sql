@@ -45,12 +45,14 @@ FROM tracks
 LEFT JOIN collections_tracks ON tracks.id = collections_tracks.track_id
 WHERE collections_tracks.track_id IS NULL;
 
-SELECT artists.title AS artist, tracks.title AS track, tracks.duration
-FROM artists
-JOIN albums_artists ON artists.id = albums_artists.artist_id
-JOIN albums ON albums_artists.album_id = albums.id
-JOIN tracks ON albums.id = tracks.album_id
-WHERE tracks.duration = (SELECT MIN(duration) FROM tracks);
+SELECT artists.title /* Имена исполнителей */
+FROM artists /* Из таблицы исполнителей */
+JOIN albums_artists ON artists.id = albums_artists.artist_id  /* Объединяем с таблицей между исполнителями и альбомами */
+JOIN tracks ON albums_artists.album_id = tracks.album_id /* Объединяем с таблицей треков */
+WHERE tracks.duration = ( /* Где длительность трека равна вложенному запросу */
+    SELECT MIN(tracks.duration) FROM tracks /* Получаем минимальную длительность из таблицы треков */
+    JOIN albums_artists ON tracks.album_id = albums_artists.album_id /* Объединяем таблицу треков с промежуточной таблицей между альбомами и исполнителями на основе айди альбомов */
+);
 
 SELECT albums.title AS album, COUNT(tracks.id) AS num_tracks
 FROM albums
